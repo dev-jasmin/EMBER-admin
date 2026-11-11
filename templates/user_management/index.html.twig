@@ -1,0 +1,357 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Management | EMBER Admin{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
+            <span>ADMINISTRATION</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
+            <a href="{{ path('app_user_management') }}" class="nav-link active">User Management</a>
+            <a href="#" class="nav-link">Records</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">EMBER ADMINISTRATION</p>
+                <h1>User Management</h1>
+                <p class="dashboard-subtitle">Manage administrator and staff accounts.</p>
+            </div>
+
+            <div class="admin-user">
+                <span>{{ app.user.username }}</span>
+                <small>Administrator</small>
+            </div>
+        </header>
+
+        {% for message in app.flashes('success') %}
+            <div class="flash flash-success" role="status">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <section class="dashboard-section">
+            <div class="management-heading">
+                <div>
+                    <h2>All Accounts</h2>
+                    <p class="dashboard-subtitle">View and manage registered accounts.</p>
+                </div>
+
+                <button
+                    type="button"
+                    id="open-add-user-modal"
+                    class="button button-champagne"
+                >
+                    + Add User
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Date Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    {% for role in user.roles %}
+                                        {% if role in ['ROLE_ADMIN', 'ROLE_STAFF', 'ROLE_CUSTOMER'] %}
+                                            <span class="role-label">
+                                                {{ role|replace({'ROLE_': ''})|title }}
+                                            </span>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if user.roles is empty %}
+                                        <span class="role-label">Customer</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.createdAt|date('M d, Y') }}</td>
+                                <td class="action-cell">
+                                    <a
+                                        href="{{ path('app_user_management_edit', {id: user.id}) }}"
+                                        class="action-placeholder"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    {% if user.id != app.user.id %}
+                                        <button
+                                            type="button"
+                                            class="action-placeholder delete-action"
+                                            data-delete-url="{{ path('app_user_management_delete', {id: user.id}) }}"
+                                            data-user-name="{{ user.username }}"
+                                            data-delete-token="{{ csrf_token('delete-user-' ~ user.id) }}"
+                                        >
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="empty-table">
+                                    No accounts found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+{# ADD USER MODAL #}
+<div id="add-user-modal" class="modal-overlay" aria-hidden="true">
+    <section class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="add-user-title">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">ACCOUNT MANAGEMENT</p>
+                <h1 id="add-user-title">Add New User</h1>
+            </div>
+
+            <button type="button" id="close-add-user-modal" class="modal-close" aria-label="Close modal">
+                &times;
+            </button>
+        </div>
+
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error" role="alert">{{ message }}</div>
+        {% endfor %}
+
+        {{ form_start(form, {
+            action: path('app_user_management'),
+            attr: { class: 'admin-form' }
+        }) }}
+
+            {{ form_errors(form) }}
+            {{ form_row(form.username) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.password) }}
+            {{ form_row(form.role) }}
+
+            <div class="modal-actions">
+                <button type="button" id="cancel-add-user-modal" class="button button-secondary">
+                    Cancel
+                </button>
+
+                <button type="submit" class="button button-champagne">
+                    Create Account
+                </button>
+            </div>
+
+        {{ form_end(form) }}
+    </section>
+</div>
+
+{# EDIT USER MODAL #}
+{% if editingUser is not null %}
+<div id="edit-user-modal" class="modal-overlay is-open" aria-hidden="false">
+    <section class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="edit-user-title">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">ACCOUNT MANAGEMENT</p>
+                <h1 id="edit-user-title">Edit User</h1>
+            </div>
+
+            <a
+                href="{{ path('app_user_management') }}"
+                class="modal-close"
+                aria-label="Close modal"
+            >
+                &times;
+            </a>
+        </div>
+
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error" role="alert">{{ message }}</div>
+        {% endfor %}
+
+        {{ form_start(editForm, {
+            action: path('app_user_management_edit', {id: editingUser.id}),
+            attr: { class: 'admin-form' }
+        }) }}
+
+            {{ form_errors(editForm) }}
+            {{ form_row(editForm.username) }}
+            {{ form_row(editForm.email) }}
+            {{ form_row(editForm.role) }}
+            {{ form_row(editForm.password) }}
+
+            <div class="modal-actions">
+                <a href="{{ path('app_user_management') }}" class="button button-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="button button-champagne">
+                    Save Changes
+                </button>
+            </div>
+
+        {{ form_end(editForm) }}
+    </section>
+</div>
+{% endif %}
+
+{# Delete Confirmation Modal #}
+<div class="modal-overlay" id="deleteModal">
+    <div class="admin-modal">
+        <div class="modal-header">
+            <h1>Delete Account</h1>
+            <button type="button" class="modal-close" id="closeDeleteModal">
+                &times;
+            </button>
+        </div>
+
+        <p class="modal-description">
+            Are you sure you want to delete
+            <strong id="deleteUserName"></strong>?
+        </p>
+
+        <p class="modal-warning">
+            This action cannot be undone.
+        </p>
+
+        <form method="post" id="deleteUserForm">
+            <input type="hidden" name="_token" id="deleteUserToken">
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    id="cancelDelete"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="button button-danger"
+                >
+                    Delete Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ADD USER MODAL
+    const modal = document.getElementById('add-user-modal');
+    const openButton = document.getElementById('open-add-user-modal');
+    const closeButton = document.getElementById('close-add-user-modal');
+    const cancelButton = document.getElementById('cancel-add-user-modal');
+
+    const showModal = {{ showModal ? 'true' : 'false' }};
+
+    const openModal = () => {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    };
+
+    openButton.addEventListener('click', openModal);
+    closeButton.addEventListener('click', closeModal);
+    cancelButton.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    if (showModal) {
+        openModal();
+    }
+
+    // EDIT USER MODAL
+    const editModal = document.getElementById('edit-user-modal');
+
+    if (editModal) {
+        document.body.style.overflow = 'hidden';
+    }
+
+    // DELETE USER MODAL
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteUserForm');
+    const deleteUserName = document.getElementById('deleteUserName');
+    const deleteUserToken = document.getElementById('deleteUserToken');
+
+    const closeDeleteButton = document.getElementById('closeDeleteModal');
+    const cancelDeleteButton = document.getElementById('cancelDelete');
+
+    const openDeleteModal = (button) => {
+        deleteForm.action = button.dataset.deleteUrl;
+        deleteUserName.textContent = button.dataset.userName;
+        deleteUserToken.value = button.dataset.deleteToken;
+
+        deleteModal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeDeleteModal = () => {
+        deleteModal.classList.remove('is-open');
+        document.body.style.overflow = '';
+    };
+
+    document.querySelectorAll('.delete-action').forEach((button) => {
+        button.addEventListener('click', () => {
+            openDeleteModal(button);
+        });
+    });
+
+    closeDeleteButton.addEventListener('click', closeDeleteModal);
+    cancelDeleteButton.addEventListener('click', closeDeleteModal);
+
+    deleteModal.addEventListener('click', (event) => {
+        if (event.target === deleteModal) {
+            closeDeleteModal();
+        }
+    });
+
+    // CLOSE MODALS WITH ESCAPE
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            if (deleteModal.classList.contains('is-open')) {
+                closeDeleteModal();
+            } else if (modal.classList.contains('is-open')) {
+                closeModal();
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}
