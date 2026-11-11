@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Sign In | EMBER{% endblock %}
+
+{% block body %}
+
+<main class="login-page">
+    <div class="login-container">
+
+        <img
+            src="{{ asset('images/logo-cream white.png') }}"
+            alt="EMBER"
+            class="login-logo"
+        >
+
+        <p class="eyebrow">EMBER Administration</p>
+
+        <h1>Admin Sign In</h1>
+
+        <p class="login-description">
+            Sign in to access your administration workspace.
+        </p>
+
+        <div class="login-card">
+
+            {% if error %}
+                <div class="flash flash-error" role="alert">
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_login') }}">
+
+                <label class="form-field">
+                    <span>Email Address</span>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ last_email }}"
+                        placeholder="Enter your email address"
+                        autocomplete="email"
+                        required
+                        autofocus
+                    >
+                </label>
+
+                <label class="form-field">
+                    <span>Password</span>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </label>
+
+                <input
+                    type="hidden"
+                    name="_csrf_token"
+                    value="{{ csrf_token('authenticate') }}"
+                >
+
+                <button
+                    type="submit"
+                    class="button button-champagne button-block"
+                >
+                    Sign In
+                </button>
+
+            </form>
+        </div>
+
+        <p class="login-footer">
+            EMBER &copy; {{ 'now'|date('Y') }} · ADMINISTRATION
+        </p>
+
+    </div>
+</main>
+
+{% endblock %}
