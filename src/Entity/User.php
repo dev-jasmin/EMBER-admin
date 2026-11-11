@@ -6,9 +6,11 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -29,6 +31,9 @@ class User
 
     #[ORM\Column(options: ['default' => false])]
     private bool $isAdmin = false;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\Column(options: ['default' => 0])]
     private int $loyaltyPoints = 0;
@@ -55,9 +60,15 @@ class User
         $this->orders = new ArrayCollection();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getUsername(): ?string { return $this->username; }
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
 
     public function setUsername(string $username): static
     {
@@ -65,7 +76,10 @@ class User
         return $this;
     }
 
-    public function getEmail(): ?string { return $this->email; }
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
 
     public function setEmail(string $email): static
     {
@@ -73,7 +87,40 @@ class User
         return $this;
     }
 
-    public function getPassword(): ?string { return $this->password; }
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+
+        if ($this->isAdmin && !in_array('ROLE_ADMIN', $roles, true)) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+
+        if (empty($roles)) {
+            $roles[] = 'ROLE_CUSTOMER';
+        }
+
+        $roles[] = 'ROLE_USER';
+
+        return array_values(array_unique($roles));
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = array_values(array_unique($roles));
+        $this->isAdmin = in_array('ROLE_ADMIN', $this->roles, true);
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
 
     public function setPassword(string $password): static
     {
@@ -81,7 +128,15 @@ class User
         return $this;
     }
 
-    public function getProfilePicture(): ?string { return $this->profilePicture; }
+    public function eraseCredentials(): void
+    {
+        // No temporary sensitive data is stored.
+    }
+
+    public function getProfilePicture(): ?string
+    {
+        return $this->profilePicture;
+    }
 
     public function setProfilePicture(?string $profilePicture): static
     {
@@ -89,15 +144,30 @@ class User
         return $this;
     }
 
-    public function isAdmin(): bool { return $this->isAdmin; }
+    public function isAdmin(): bool
+    {
+        return $this->isAdmin;
+    }
 
     public function setIsAdmin(bool $isAdmin): static
     {
         $this->isAdmin = $isAdmin;
+
+        if ($isAdmin && !in_array('ROLE_ADMIN', $this->roles, true)) {
+            $this->roles[] = 'ROLE_ADMIN';
+        } elseif (!$isAdmin) {
+            $this->roles = array_values(
+                array_diff($this->roles, ['ROLE_ADMIN'])
+            );
+        }
+
         return $this;
     }
 
-    public function getLoyaltyPoints(): int { return $this->loyaltyPoints; }
+    public function getLoyaltyPoints(): int
+    {
+        return $this->loyaltyPoints;
+    }
 
     public function setLoyaltyPoints(int $loyaltyPoints): static
     {
@@ -105,7 +175,10 @@ class User
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
