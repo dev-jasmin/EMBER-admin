@@ -270,7 +270,8 @@ button {
     margin-bottom: 20px;
 }
 
-.form-field > span {
+.form-field > span:first-child,
+.form-field > label {
     display: block;
     margin-bottom: 9px;
 
@@ -1284,4 +1285,337 @@ button {
     .modal-overlay.is-open .product-modal {
         animation: none;
     }
+}
+
+
+/* =========================
+   EMBER PROFILE
+========================= */
+
+.admin-profile {
+    max-width: 1000px;
+    padding-top: 12px;
+}
+
+.admin-profile .profile-heading {
+    margin-bottom: 34px;
+}
+
+.admin-profile .profile-eyebrow {
+    color: var(--champagne);
+    font-size: 9px;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.admin-profile .profile-heading h1 {
+    font: 500 42px/1 var(--serif);
+    margin: 0 0 10px;
+    text-transform: capitalize;
+}
+
+.admin-profile .profile-heading > p:not(.profile-eyebrow) {
+    font-size: 11px;
+    opacity: 0.65;
+}
+
+.admin-profile .profile-layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.admin-profile .profile-card {
+    background: #211f1d;
+    border-radius: 16px;
+    padding: 26px;
+}
+
+.admin-profile .profile-card h3 {
+    font: 500 20px var(--serif);
+    margin: 0 0 20px;
+}
+
+.admin-profile .profile-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 13px 0;
+    border-top: 1px solid rgba(245, 240, 232, 0.08);
+}
+
+.admin-profile .profile-detail span {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.55;
+}
+
+.admin-profile .profile-detail strong {
+    font-size: 12px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.admin-profile .profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.admin-profile .profile-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 11px 18px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+}
+
+.admin-profile .profile-button-primary {
+    background: var(--champagne);
+    color: var(--ink);
+}
+
+.admin-profile .profile-button-primary:hover {
+    background: var(--champagne-light);
+}
+
+.admin-profile .profile-button-outline {
+    border: 1px solid var(--champagne);
+    color: var(--champagne);
+    background: transparent;
+}
+
+.admin-profile .profile-button-outline:hover {
+    background: var(--champagne);
+    color: var(--ink);
+}
+
+@media (max-width: 800px) {
+    .admin-profile .profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-profile .profile-heading h1 {
+        font-size: 36px;
+    }
+}
+
+
+/* =========================
+   EMBER PROFILE FORMS
+========================= */
+
+.admin-profile .profile-form-card {
+    width: 100%;
+    max-width: 700px;
+    padding: 32px;
+    border: 1px solid var(--gold-border);
+    border-radius: 16px;
+    background:
+        radial-gradient(ellipse at top left, rgba(201, 169, 110, 0.07), transparent 45%),
+        linear-gradient(145deg, #262320, #211f1d 68%);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.admin-profile .profile-form-heading {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-profile .profile-form-heading .profile-eyebrow {
+    margin: 0 0 8px;
+}
+
+.admin-profile .profile-form-heading h2 {
+    margin: 0;
+    color: var(--paper);
+    font: 500 25px/1.2 var(--serif);
+}
+
+.admin-profile .profile-form-heading > p:last-child {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.admin-profile .profile-password-note {
+    margin: -8px 0 0;
+    padding: 11px 13px;
+    border-left: 2px solid var(--champagne);
+    border-radius: 0 7px 7px 0;
+    background: rgba(201, 169, 110, 0.07);
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.admin-profile .profile-form-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.admin-profile .profile-form-card .form-label,
+.admin-profile .profile-form-card label {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(245, 240, 232, 0.82);
+    font-size: 10px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.admin-profile .profile-form-card input,
+.admin-profile .profile-form-card select,
+.admin-profile .profile-form-card textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    color: var(--paper);
+    background: rgba(12, 12, 12, 0.42);
+    border: 1px solid rgba(245, 240, 232, 0.14);
+    border-radius: 9px;
+    outline: none;
+    font-family: inherit;
+    font-size: 12px;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.admin-profile .profile-form-card input:hover,
+.admin-profile .profile-form-card select:hover,
+.admin-profile .profile-form-card textarea:hover {
+    border-color: rgba(201, 169, 110, 0.42);
+}
+
+.admin-profile .profile-form-card input:focus,
+.admin-profile .profile-form-card select:focus,
+.admin-profile .profile-form-card textarea:focus {
+    border-color: var(--champagne);
+    background: rgba(12, 12, 12, 0.62);
+    box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.12);
+}
+
+.admin-profile .profile-form-card input::placeholder {
+    color: rgba(245, 240, 232, 0.35);
+}
+
+.admin-profile .profile-form-card .form-error-message,
+.admin-profile .profile-form-card .invalid-feedback,
+.admin-profile .profile-form-card ul {
+    color: #e59b91;
+    font-size: 11px;
+}
+
+.admin-profile .profile-form-card ul {
+    margin: 7px 0 0;
+    padding-left: 18px;
+}
+
+.admin-profile .profile-form-card .profile-actions {
+    margin-top: 6px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.admin-profile .profile-form-card .profile-button {
+    min-height: 42px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.admin-profile .profile-form-card .profile-button:hover {
+    transform: translateY(-1px);
+}
+
+.admin-profile .profile-form-card .profile-button:focus-visible {
+    outline: 2px solid var(--champagne);
+    outline-offset: 3px;
+}
+
+.admin-profile .profile-form-card .profile-button-outline {
+    border-color: var(--gold-border);
+}
+
+@media (max-width: 600px) {
+    .admin-profile .profile-form-card {
+        padding: 24px 20px;
+    }
+
+    .admin-profile .profile-form-card .profile-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .admin-profile .profile-form-card .profile-button {
+        width: 100%;
+    }
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.password-input-wrapper > input.password-visibility-input {
+    padding-right: 52px;
+}
+
+.password-visibility-toggle {
+    position: absolute;
+    top: 50%;
+    right: 7px;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.password-visibility-toggle:hover {
+    background: rgba(201, 169, 110, 0.1);
+    color: var(--champagne-light);
+}
+
+.password-visibility-toggle:focus-visible {
+    outline: 2px solid var(--champagne);
+    outline-offset: 1px;
+}
+
+.password-visibility-toggle svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.password-visibility-slash {
+    display: none;
+}
+
+.password-visibility-toggle.is-visible .password-visibility-slash {
+    display: block;
 }

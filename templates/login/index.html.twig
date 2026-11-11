@@ -29,11 +29,12 @@
                 </div>
             {% endif %}
 
-            <form method="post" action="{{ path('app_login') }}">
+            <form id="login-form" method="post" action="{{ path('app_login') }}">
 
-                <label class="form-field">
-                    <span>Email Address</span>
+                <div class="form-field">
+                    <label for="login-email">Email Address</label>
                     <input
+                        id="login-email"
                         type="email"
                         name="email"
                         value="{{ last_email }}"
@@ -42,18 +43,19 @@
                         required
                         autofocus
                     >
-                </label>
+                </div>
 
-                <label class="form-field">
-                    <span>Password</span>
+                <div class="form-field">
+                    <label for="login-password">Password</label>
                     <input
+                        id="login-password"
                         type="password"
                         name="password"
                         placeholder="Enter your password"
                         autocomplete="current-password"
                         required
                     >
-                </label>
+                </div>
 
                 <input
                     type="hidden"
@@ -78,4 +80,21 @@
     </div>
 </main>
 
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    const loginForm = document.getElementById('login-form');
+
+    loginForm.addEventListener('keydown', (event) => {
+        if (
+            event.key === 'Enter'
+            && !event.isComposing
+            && event.target instanceof HTMLInputElement
+        ) {
+            event.preventDefault();
+            loginForm.requestSubmit();
+        }
+    });
+</script>
 {% endblock %}

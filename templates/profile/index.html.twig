@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile | EMBER{% endblock %}
+
+{% block body %}
+<div class="admin-content admin-profile">
+
+    <div class="profile-heading">
+        <p class="profile-eyebrow">Your account</p>
+        <h1>{{ user.username }}</h1>
+        <p>Manage your account information and security.</p>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    <div class="profile-layout">
+
+        <section class="profile-card">
+            <h3>Account details</h3>
+
+            <div class="profile-detail">
+                <span>Username</span>
+                <strong>{{ user.username }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <span>Email</span>
+                <strong>{{ user.email }}</strong>
+            </div>
+
+            <div class="profile-detail">
+                <span>Account type</span>
+                <strong>
+                    {% if 'ROLE_ADMIN' in user.roles %}
+                        Administrator
+                    {% else %}
+                        Staff
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="profile-detail">
+                <span>Member since</span>
+                <strong>{{ user.createdAt ? user.createdAt|date('F Y') : '—' }}</strong>
+            </div>
+        </section>
+
+        <section class="profile-card">
+            <h3>Account settings</h3>
+
+            <div class="profile-detail">
+                <span>Personal information</span>
+                <strong>Update your username and email address.</strong>
+            </div>
+
+            <div class="profile-detail">
+                <span>Password security</span>
+                <strong>Keep your account protected with a secure password.</strong>
+            </div>
+
+            <div class="profile-actions">
+                <a href="{{ path('app_profile_edit') }}"
+                   class="profile-button profile-button-primary">
+                    Edit Profile
+                </a>
+
+                <a href="{{ path('app_profile_change_password') }}"
+                   class="profile-button profile-button-outline">
+                    Change Password
+                </a>
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}
