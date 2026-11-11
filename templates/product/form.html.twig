@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ pageTitle }} | EMBER Admin{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
+            <span>ADMINISTRATION</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
+            {% endif %}
+            <a href="{{ path('app_product') }}" class="nav-link active">Product Management</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">EMBER WORKSPACE</p>
+                <h1>{{ pageTitle }}</h1>
+                <p class="dashboard-subtitle">Manage your product catalog.</p>
+            </div>
+
+            <div class="admin-user">
+                <span>{{ app.user.username }}</span>
+                <small>{{ is_granted('ROLE_ADMIN') ? 'Administrator' : 'Staff' }}</small>
+            </div>
+        </header>
+
+        <section class="dashboard-section">
+            <div class="product-entry-card">
+                <h2>{{ pageTitle == 'Add Product' ? 'Add new product' : 'Edit product' }}</h2>
+
+                {{ form_start(form, {'attr': {'class': 'product-entry-form'}}) }}
+
+                    {{ form_errors(form) }}
+
+                    <div class="product-entry-field">
+                        {{ form_label(form.name, 'Name') }}
+                        {{ form_widget(form.name, {'attr': {'class': 'product-entry-control'}}) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="product-entry-field">
+                        {{ form_label(form.price, 'Price (₱)') }}
+                        {{ form_widget(form.price, {'attr': {'class': 'product-entry-control'}}) }}
+                        {{ form_errors(form.price) }}
+                    </div>
+
+                    <div class="product-entry-field">
+                        {{ form_label(form.category, 'Category') }}
+                        {{ form_widget(form.category, {'attr': {'class': 'product-entry-control'}}) }}
+                        {{ form_errors(form.category) }}
+                    </div>
+
+                    <div class="product-entry-field">
+                        {{ form_label(form.description, 'Description') }}
+                        {{ form_widget(form.description, {
+                            'attr': {
+                                'class': 'product-entry-control product-entry-description',
+                                'rows': 3,
+                                'placeholder': 'Enter product description...'
+                            }
+                        }) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+
+                    <div class="product-entry-field">
+                        {{ form_label(form.imageFile, 'Product image') }}
+
+                        {% if form.vars.data.image %}
+                            <div class="product-current-image">
+                                <img src="{{ asset(form.vars.data.image) }}" alt="Current product">
+                                <span>Current product image</span>
+                            </div>
+                        {% endif %}
+
+                        {{ form_widget(form.imageFile, {'attr': {'class': 'product-entry-control product-file-input'}}) }}
+                        {{ form_errors(form.imageFile) }}
+
+                        <small class="product-entry-help">
+                            JPG, PNG, or WEBP · Maximum 5 MB.
+                            {% if form.vars.data.image %}
+                                Leave empty to keep the current image.
+                            {% else %}
+                                An image is required.
+                            {% endif %}
+                        </small>
+                    </div>
+
+                    <div class="product-entry-active">
+                        {{ form_widget(form.isActive, {'attr': {'class': 'product-active-toggle'}}) }}
+                        {{ form_label(form.isActive, 'Active product') }}
+                    </div>
+
+                    {{ form_errors(form.isActive) }}
+
+                    <button class="button button-champagne product-entry-submit" type="submit">
+                        {{ pageTitle == 'Add Product' ? 'Add product' : 'Save changes' }}
+                    </button>
+
+                    <a href="{{ path('app_product') }}" class="product-entry-cancel">
+                        Cancel
+                    </a>
+
+                {{ form_end(form) }}
+            </div>
+        </section>
+    </main>
+</div>
+{% endblock %}

@@ -769,6 +769,32 @@ button {
     background: rgba(245, 240, 232, 0.025);
 }
 
+.table-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.table-user-cell > span {
+    min-width: 0;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-avatar {
+    display: block;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border: 1px solid var(--gold-border);
+    border-radius: 8px;
+    background: rgba(245, 240, 232, 0.04);
+    object-fit: cover;
+}
+
 .role-label {
     display: inline-block;
     padding: 5px 10px;
@@ -957,14 +983,40 @@ button {
     color: #f0a196;
 }
 
+.edit-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 11px;
+    border: 1px solid var(--gold-border);
+    border-radius: 6px;
+    background: rgba(201, 169, 110, 0.09);
+    color: var(--champagne);
+    font: 500 10px var(--sans);
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.edit-action:hover {
+    border-color: var(--champagne);
+    background: rgba(201, 169, 110, 0.18);
+    color: var(--paper);
+}
+
+.edit-action:focus-visible {
+    outline: 2px solid var(--champagne);
+    outline-offset: 2px;
+}
+
 .action-cell {
     white-space: nowrap;
     vertical-align: middle;
 }
 
-.action-cell .action-placeholder,
+.action-cell .edit-action,
 .action-cell .delete-action {
-    display: inline-block;
+    display: inline-flex;
     margin-right: 12px;
     vertical-align: middle;
 }
@@ -980,5 +1032,256 @@ button {
 
     .modal-actions .button {
         width: 100%;
+    }
+}
+
+
+/* =========================================
+   PRODUCT MODALS
+========================================= */
+
+.product-modal {
+    width: min(760px, calc(100vw - 40px));
+    max-width: 760px;
+    max-height: min(90vh, 840px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 30px 34px;
+    border: 1px solid rgba(201, 169, 110, 0.3);
+    border-radius: 16px;
+    background:
+        radial-gradient(ellipse at top left, rgba(201, 169, 110, 0.08), transparent 42%),
+        linear-gradient(145deg, #27231f, #1e1c1a 72%);
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+}
+
+.product-modal .modal-header {
+    align-items: flex-start;
+    margin-bottom: 27px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.product-modal .modal-header .eyebrow {
+    margin-bottom: 9px;
+}
+
+.product-modal .modal-header h2 {
+    margin: 0;
+    color: var(--paper);
+    font: 500 30px/1.2 var(--serif);
+}
+
+.product-modal .modal-description {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.product-modal .modal-close {
+    width: 36px;
+    height: 36px;
+    font-size: 21px;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.product-modal .modal-close:hover {
+    border-color: var(--champagne);
+}
+
+.modal-overlay.is-open .product-modal {
+    animation: product-modal-enter 0.24s ease-out both;
+}
+
+@keyframes product-modal-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.product-modal-form .product-modal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 21px 24px;
+}
+
+.product-modal-form .product-modal-grid > div {
+    min-width: 0;
+}
+
+.product-modal-form .product-modal-grid label {
+    margin-bottom: 8px;
+    color: rgba(245, 240, 232, 0.82);
+    font-size: 10px;
+    letter-spacing: 0.055em;
+}
+
+.product-modal-form input:not([type="checkbox"]),
+.product-modal-form select,
+.product-modal-form textarea {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    color: var(--paper);
+    background: rgba(12, 12, 12, 0.42);
+    border: 1px solid rgba(245, 240, 232, 0.13);
+    border-radius: 9px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.product-modal-form input:focus,
+.product-modal-form select:focus,
+.product-modal-form textarea:focus {
+    outline: none;
+    border-color: var(--champagne);
+    background: rgba(12, 12, 12, 0.62);
+    box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.12);
+}
+
+.product-modal-form input::placeholder,
+.product-modal-form textarea::placeholder {
+    color: rgba(245, 240, 232, 0.34);
+}
+
+.product-modal-form select option {
+    background: #211f1d;
+    color: var(--paper);
+}
+
+.product-modal-form textarea {
+    min-height: 104px;
+    resize: vertical;
+    line-height: 1.65;
+}
+
+.product-modal-form .product-modal-description {
+    grid-column: 1 / -1;
+}
+
+.product-modal-form input[type="file"] {
+    min-height: 52px;
+    padding: 8px;
+    color: var(--muted);
+    border-style: dashed;
+    cursor: pointer;
+}
+
+.product-modal-form input[type="file"]::file-selector-button {
+    min-height: 34px;
+    margin-right: 12px;
+    padding: 0 13px;
+    border: 1px solid var(--gold-border);
+    border-radius: 6px;
+    background: rgba(201, 169, 110, 0.12);
+    color: var(--champagne-light);
+    font: 500 11px var(--sans);
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.product-modal-form input[type="file"]::file-selector-button:hover {
+    background: rgba(201, 169, 110, 0.2);
+}
+
+.product-upload-help {
+    display: block;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.product-modal-active {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-top: 23px;
+    padding: 14px 15px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: rgba(245, 240, 232, 0.025);
+}
+
+.product-modal-active input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: var(--champagne);
+    cursor: pointer;
+}
+
+.product-modal-active label {
+    color: var(--paper);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.product-modal-form .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.product-modal-form .modal-actions .button {
+    min-height: 42px;
+    padding: 0 20px;
+    border-radius: 7px;
+}
+
+.product-modal-form ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    color: #e19a90;
+    font-size: 11px;
+}
+
+@media (max-width: 600px) {
+    .product-modal {
+        width: calc(100vw - 24px);
+        max-height: 92vh;
+        padding: 23px 20px;
+        border-radius: 13px;
+    }
+
+    .product-modal .modal-header {
+        margin-bottom: 21px;
+        padding-bottom: 18px;
+    }
+
+    .product-modal .modal-header h2 {
+        font-size: 26px;
+    }
+
+    .product-modal-form .product-modal-grid {
+        grid-template-columns: 1fr;
+        gap: 17px;
+    }
+
+    .product-modal-form .product-modal-description {
+        grid-column: auto;
+    }
+
+    .product-modal-form .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .product-modal-form .modal-actions .button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-overlay.is-open .product-modal {
+        animation: none;
     }
 }

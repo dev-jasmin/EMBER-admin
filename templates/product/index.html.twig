@@ -1,20 +1,278 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProductController!{% endblock %}
+{% block title %}Product Management | EMBER Admin{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
+            <span>ADMINISTRATION</span>
+        </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <nav class="sidebar-nav">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
+            {% endif %}
+            <a href="{{ path('app_product') }}" class="nav-link active">Product Management</a>
+        </nav>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/Jasmin/Documents/WEB DEV/EMBER/admin/src/Controller/ProductController.php</code></li>
-        <li>Your template at <code>C:/Users/Jasmin/Documents/WEB DEV/EMBER/admin/templates/product/index.html.twig</code></li>
-    </ul>
+        <div class="sidebar-bottom">
+            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">EMBER WORKSPACE</p>
+                <h1>Product Management</h1>
+                <p class="dashboard-subtitle">Manage your product catalog.</p>
+            </div>
+
+            <div class="admin-user">
+                <span>{{ app.user.username }}</span>
+                <small>{{ is_granted('ROLE_ADMIN') ? 'Administrator' : 'Staff' }}</small>
+            </div>
+        </header>
+
+        <section class="dashboard-section">
+            <div class="management-heading">
+                <div>
+                    <h2>Products</h2>
+                    <p class="dashboard-subtitle">{{ products|length }} products in the catalog</p>
+                </div>
+
+                <button type="button" class="button button-champagne" onclick="openProductModal('add-product-modal')">
+                    + Add Product
+                </button>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="flash-message flash-success">{{ message }}</div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="flash-message flash-error">{{ message }}</div>
+            {% endfor %}
+
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Created By</th>
+                            <th>Date Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                            <tr>
+                                <td>
+                                    <div class="table-user-cell">
+                                        {% if product.image %}
+                                            <img src="{{ asset(product.image) }}" alt="{{ product.name }}" class="table-avatar" width="48" height="48" loading="lazy" decoding="async">
+                                        {% endif %}
+                                        <span>{{ product.name }}</span>
+                                    </div>
+                                </td>
+                                <td>₱{{ product.price|number_format(2) }}</td>
+                                <td>{{ product.category|default('—')|capitalize }}</td>
+                                <td>{{ product.isActive ? 'Active' : 'Inactive' }}</td>
+                                <td>{{ product.createdBy ? product.createdBy.username : '—' }}</td>
+                                <td>{{ product.createdAt|date('M d, Y') }}</td>
+                                <td class="action-cell">
+                                    {% if is_granted('ROLE_ADMIN') or (product.createdBy and product.createdBy.id == app.user.id) %}
+                                        <button
+                                            type="button"
+                                            class="edit-action"
+                                            aria-label="Edit {{ product.name }}"
+                                            onclick="openProductModal('edit-product-modal-{{ product.id }}')">
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="delete-action"
+                                            onclick="openProductModal('delete-product-modal-{{ product.id }}')">
+                                            Delete
+                                        </button>
+                                    {% else %}
+                                        <span class="action-placeholder">View only</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="empty-table">No products have been added yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 </div>
+
+{# ADD PRODUCT MODAL #}
+<div class="modal-overlay" id="add-product-modal">
+    <div class="admin-modal product-modal" role="dialog" aria-modal="true" aria-labelledby="add-product-title">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">PRODUCT CATALOG</p>
+                <h2 id="add-product-title">Add New Product</h2>
+                <p class="modal-description">Add the key details and image for your catalog.</p>
+            </div>
+            <button type="button" class="modal-close" aria-label="Close add product dialog" onclick="closeProductModal('add-product-modal')">&times;</button>
+        </div>
+
+        {{ form_start(addForm, {'attr': {'class': 'admin-form product-modal-form'}}) }}
+            {{ form_errors(addForm) }}
+
+            <div class="product-modal-grid">
+                <div>
+                    {{ form_row(addForm.name) }}
+                </div>
+                <div>
+                    {{ form_row(addForm.price) }}
+                </div>
+                <div>
+                    {{ form_row(addForm.category) }}
+                </div>
+                <div>
+                    {{ form_row(addForm.imageFile) }}
+                    <small class="product-upload-help">Choose a JPG, PNG, or WEBP image (up to 5 MB).</small>
+                </div>
+                <div class="product-modal-description">
+                    {{ form_row(addForm.description, {'attr': {'rows': 3, 'placeholder': 'Enter product description...'}}) }}
+                </div>
+            </div>
+
+            <div class="product-modal-active">
+                {{ form_widget(addForm.isActive) }}
+                {{ form_label(addForm.isActive, 'Active product') }}
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="button button-secondary" onclick="closeProductModal('add-product-modal')">Cancel</button>
+                <button type="submit" class="button button-champagne">Add Product</button>
+            </div>
+        {{ form_end(addForm) }}
+    </div>
+</div>
+
+{# EDIT PRODUCT MODALS #}
+{% for product in products %}
+    <div class="modal-overlay" id="edit-product-modal-{{ product.id }}">
+        <div class="admin-modal product-modal" role="dialog" aria-modal="true" aria-labelledby="edit-product-title-{{ product.id }}">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow">PRODUCT CATALOG</p>
+                    <h2 id="edit-product-title-{{ product.id }}">Edit Product</h2>
+                    <p class="modal-description">Update {{ product.name }}.</p>
+                </div>
+                <button type="button" class="modal-close" onclick="closeProductModal('edit-product-modal-{{ product.id }}')">&times;</button>
+            </div>
+
+            {{ form_start(editForms[product.id], {'attr': {'class': 'admin-form product-modal-form'}}) }}
+                {{ form_errors(editForms[product.id]) }}
+
+                <div class="product-modal-grid">
+                    <div>
+                        {{ form_row(editForms[product.id].name) }}
+                    </div>
+                    <div>
+                        {{ form_row(editForms[product.id].price) }}
+                    </div>
+                    <div>
+                        {{ form_row(editForms[product.id].category) }}
+                    </div>
+                    <div>
+                        {{ form_row(editForms[product.id].imageFile) }}
+                        <small class="product-upload-help">Leave empty to keep the current image.</small>
+                    </div>
+                    <div class="product-modal-description">
+                        {{ form_row(editForms[product.id].description, {'attr': {'rows': 3}}) }}
+                    </div>
+                </div>
+
+                <div class="product-modal-active">
+                    {{ form_widget(editForms[product.id].isActive) }}
+                    {{ form_label(editForms[product.id].isActive, 'Active product') }}
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="button button-secondary" onclick="closeProductModal('edit-product-modal-{{ product.id }}')">Cancel</button>
+                    <button type="submit" class="button button-champagne">Save Changes</button>
+                </div>
+            {{ form_end(editForms[product.id]) }}
+        </div>
+    </div>
+
+    {# DELETE CONFIRMATION MODAL #}
+    <div class="modal-overlay" id="delete-product-modal-{{ product.id }}">
+        <div class="admin-modal delete-modal" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow">CONFIRM ACTION</p>
+                    <h2>Delete Product?</h2>
+                    <p class="modal-description">Are you sure you want to delete <strong>{{ product.name }}</strong>? This action cannot be undone.</p>
+                </div>
+                <button type="button" class="modal-close" onclick="closeProductModal('delete-product-modal-{{ product.id }}')">&times;</button>
+            </div>
+
+            <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-product-' ~ product.id) }}">
+                <div class="modal-actions">
+                    <button type="button" class="button button-secondary" onclick="closeProductModal('delete-product-modal-{{ product.id }}')">Cancel</button>
+                    <button type="submit" class="button button-danger">Delete Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endfor %}
+
+<script>
+function openProductModal(id) {
+    const modal = document.getElementById(id);
+
+    if (modal) {
+        modal.classList.add('is-open');
+        document.body.classList.add('modal-open');
+    }
+}
+
+function closeProductModal(id) {
+    const modal = document.getElementById(id);
+
+    if (modal) {
+        modal.classList.remove('is-open');
+
+        if (!document.querySelector('.modal-overlay.is-open')) {
+            document.body.classList.remove('modal-open');
+        }
+    }
+}
+
+document.querySelectorAll('.modal-overlay').forEach((modal) => {
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeProductModal(modal.id);
+        }
+    });
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.is-open').forEach((modal) => {
+            closeProductModal(modal.id);
+        });
+    }
+});
+</script>
 {% endblock %}
