@@ -40,6 +40,10 @@ class Product
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
+
     /**
      * @var Collection<int, CartItem>
      */
@@ -171,6 +175,19 @@ class Product
                 $cartItem->setProduct(null);
             }
         }
+
+        return $this;
+        
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }
