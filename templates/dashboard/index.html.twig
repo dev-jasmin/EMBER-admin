@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard | EMBER Admin{% endblock %}
+
+{% block body %}
+
+<div class="admin-layout">
+
+    {# Sidebar #}
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+            <img
+                src="{{ asset('images/logo-cream%20white.png') }}"
+                alt="EMBER"
+                class="sidebar-logo"
+            >
+            <span>ADMINISTRATION</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ path('app_dashboard') }}" class="nav-link active">
+                Dashboard
+            </a>
+
+            <a href="#" class="nav-link">
+                User Management
+            </a>
+
+            <a href="#" class="nav-link">
+                Records
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="{{ path('app_logout') }}" class="nav-link logout-link">
+                Sign Out
+            </a>
+        </div>
+
+    </aside>
+
+    {# Main Content #}
+    <main class="admin-main">
+
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">EMBER ADMINISTRATION</p>
+                <h1>Dashboard</h1>
+                <p class="dashboard-subtitle">
+                    Welcome to your administration workspace.
+                </p>
+            </div>
+
+            <div class="admin-user">
+                <span>{{ app.user.username }}</span>
+                <small>Administrator</small>
+            </div>
+        </header>
+
+        <section class="dashboard-section">
+            <h2>Overview</h2>
+
+            <div class="dashboard-cards">
+
+                <article class="dashboard-card">
+                    <span class="card-label">Total Users</span>
+                    <h3>{{ totalUsers }}</h3>
+                    <p>Registered accounts</p>
+                </article>
+
+                <article class="dashboard-card">
+                    <span class="card-label">Total Staff</span>
+                    <h3>{{ totalStaff }}</h3>
+                    <p>Staff accounts</p>
+                </article>
+
+                <article class="dashboard-card">
+                    <span class="card-label">Total Records</span>
+                    <h3>{{ totalProducts }}</h3>
+                    <p>System records</p>
+                </article>
+
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+{% endblock %}
