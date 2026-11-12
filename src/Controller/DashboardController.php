@@ -25,11 +25,9 @@ final class DashboardController extends AbstractController
         ContactMessageRepository $messageRepository
     ): Response {
 
-        // Only Admin accounts can access the Admin Dashboard.
+        // Staff should go directly to Products.
         if (!$this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException(
-                'Only administrators can access the dashboard.'
-            );
+            return $this->redirectToRoute('app_product');
         }
 
         $totalRevenue = $orderRepository
@@ -44,21 +42,17 @@ final class DashboardController extends AbstractController
             'isAdmin' => true,
             'activePage' => 'dashboard',
 
-            // User statistics
             'totalUsers' => $userRepository->count([]),
             'totalStaff' => $userRepository->countByRole('ROLE_STAFF'),
 
-            // Product statistics
             'totalProducts' => $productRepository->count([]),
             'activeProducts' => $productRepository->count([
                 'isActive' => true,
             ]),
 
-            // Order statistics
             'totalOrders' => $orderRepository->count([]),
             'totalRevenue' => $totalRevenue,
 
-            // Other records
             'totalSubscribers' => $subscriberRepository->count([]),
             'totalMessages' => $messageRepository->count([]),
         ]);
