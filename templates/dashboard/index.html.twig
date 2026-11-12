@@ -23,12 +23,14 @@
                 Dashboard
             </a>
 
-            <a href="#" class="nav-link">
-                User Management
-            </a>
+            {% if isAdmin %}
+                <a href="{{ path('app_user_management') }}" class="nav-link">
+                    User Management
+                </a>
+            {% endif %}
 
-            <a href="#" class="nav-link">
-                Records
+            <a href="{{ path('app_product') }}" class="nav-link">
+                Products
             </a>
         </nav>
 
@@ -54,7 +56,7 @@
 
             <div class="admin-user">
                 <span>{{ app.user.username }}</span>
-                <small>Administrator</small>
+                <small>{{ isAdmin ? 'Administrator' : 'Staff' }}</small>
             </div>
         </header>
 
@@ -63,22 +65,24 @@
 
             <div class="dashboard-cards">
 
-                <article class="dashboard-card">
-                    <span class="card-label">Total Users</span>
-                    <h3>{{ totalUsers }}</h3>
-                    <p>Registered accounts</p>
-                </article>
+                {% if isAdmin %}
+                    <article class="dashboard-card">
+                        <span class="card-label">Total Users</span>
+                        <h3>{{ totalUsers }}</h3>
+                        <p>Registered accounts</p>
+                    </article>
+
+                    <article class="dashboard-card">
+                        <span class="card-label">Total Staff</span>
+                        <h3>{{ totalStaff }}</h3>
+                        <p>Staff accounts</p>
+                    </article>
+                {% endif %}
 
                 <article class="dashboard-card">
-                    <span class="card-label">Total Staff</span>
-                    <h3>{{ totalStaff }}</h3>
-                    <p>Staff accounts</p>
-                </article>
-
-                <article class="dashboard-card">
-                    <span class="card-label">Total Records</span>
+                    <span class="card-label">Total Products</span>
                     <h3>{{ totalProducts }}</h3>
-                    <p>System records</p>
+                    <p>Products in the system</p>
                 </article>
 
             </div>

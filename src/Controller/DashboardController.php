@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/dashboard')]
-#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_USER')]
 final class DashboardController extends AbstractController
 {
     #[Route('', name: 'app_dashboard')]
@@ -18,9 +18,12 @@ final class DashboardController extends AbstractController
         UserRepository $userRepository,
         ProductRepository $productRepository
     ): Response {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
         return $this->render('dashboard/index.html.twig', [
-            'totalUsers' => $userRepository->count([]),
-            'totalStaff' => $userRepository->countByRole('ROLE_STAFF'),
+            'isAdmin' => $isAdmin,
+            'totalUsers' => $isAdmin ? $userRepository->count([]) : null,
+            'totalStaff' => $isAdmin ? $userRepository->countByRole('ROLE_STAFF') : null,
             'totalProducts' => $productRepository->count([]),
         ]);
     }

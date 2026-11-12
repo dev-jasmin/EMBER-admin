@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Product Management | EMBER Admin{% endblock %}
+{% block title %}Products | EMBER Admin{% endblock %}
 
 {% block body %}
 <div class="admin-layout">
@@ -15,7 +15,7 @@
                 <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
             {% endif %}
-            <a href="{{ path('app_product') }}" class="nav-link active">Product Management</a>
+            <a href="{{ path('app_product') }}" class="nav-link active">Products</a>
         </nav>
 
         <div class="sidebar-bottom">
@@ -27,7 +27,7 @@
         <header class="dashboard-header">
             <div>
                 <p class="eyebrow">EMBER WORKSPACE</p>
-                <h1>Product Management</h1>
+                <h1>Products</h1>
                 <p class="dashboard-subtitle">Manage your product catalog.</p>
             </div>
 

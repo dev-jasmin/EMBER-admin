@@ -1,0 +1,206 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Management | EMBER Admin{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
+            <span>ADMINISTRATION</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
+            <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
+            <a href="{{ path('app_product') }}" class="nav-link">Product Management</a>
+            <a href="{{ path('app_order') }}" class="nav-link active">Orders</a>
+            <a href="{{ path('app_profile') }}" class="nav-link">My Profile</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">EMBER WORKSPACE</p>
+                <h1>Order Management</h1>
+                <p class="dashboard-subtitle">Review customer orders and manage their status.</p>
+            </div>
+
+            <div class="admin-user">
+                <span>{{ app.user.username }}</span>
+                <small>Administrator</small>
+            </div>
+        </header>
+
+        <section class="dashboard-section">
+            <div class="management-heading">
+                <div>
+                    <h2>Orders</h2>
+                    <p class="dashboard-subtitle">{{ orders|length }} orders in the system</p>
+                </div>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="flash-message flash-success">{{ message }}</div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="flash-message flash-error">{{ message }}</div>
+            {% endfor %}
+
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Payment</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>
+                                    <div>
+                                        <strong>{{ order.recipientName }}</strong>
+                                        <br>
+                                        <small>{{ order.user ? order.user.username : 'Customer' }}</small>
+                                    </div>
+                                </td>
+                                <td>{{ order.createdAt|date('M d, Y') }}</td>
+                                <td>{{ order.paymentMethod|upper }}</td>
+                                <td>₱{{ order.total|number_format(2) }}</td>
+                                <td>
+                                    <form method="post" action="{{ path('app_order_status', {id: order.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('order-status-' ~ order.id) }}">
+
+                                        <select name="status" aria-label="Status for order {{ order.id }}">
+                                            {% for status in ['placed', 'processing', 'shipped', 'delivered', 'cancelled'] %}
+                                                <option value="{{ status }}" {% if order.status == status %}selected{% endif %}>
+                                                    {{ status|capitalize }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+
+                                        <button type="submit" class="edit-action">Save</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="edit-action"
+                                        onclick="openOrderModal('order-modal-{{ order.id }}')">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="empty-table">No orders have been placed yet.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+{# ORDER DETAILS MODALS #}
+{% for order in orders %}
+    <div class="modal-overlay" id="order-modal-{{ order.id }}">
+        <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="order-title-{{ order.id }}">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow">ORDER DETAILS</p>
+                    <h2 id="order-title-{{ order.id }}">Order #{{ order.id }}</h2>
+                    <p class="modal-description">Placed on {{ order.createdAt|date('M d, Y - h:i A') }}</p>
+                </div>
+
+                <button type="button" class="modal-close" aria-label="Close order details" onclick="closeOrderModal('order-modal-{{ order.id }}')">&times;</button>
+            </div>
+
+            <div class="admin-form">
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> {{ order.recipientName }}</p>
+                <p><strong>Account:</strong> {{ order.user ? order.user.username : 'Customer' }}</p>
+                <p><strong>Phone:</strong> {{ order.phone }}</p>
+                <p><strong>Delivery Address:</strong> {{ order.address }}</p>
+
+                {% if order.notes %}
+                    <p><strong>Notes:</strong> {{ order.notes }}</p>
+                {% endif %}
+
+                <h3>Ordered Items</h3>
+
+                {% for item in order.orderItems %}
+                    <div class="management-heading">
+                        <span>Product #{{ item.productId }}</span>
+                        <span>{{ item.quantity }} × ₱{{ item.price|number_format(2) }}</span>
+                    </div>
+                {% else %}
+                    <p class="dashboard-subtitle">No order items found.</p>
+                {% endfor %}
+
+                <div class="divider"></div>
+                <p><strong>Payment Method:</strong> {{ order.paymentMethod|upper }}</p>
+                <p><strong>Order Status:</strong> {{ order.status|capitalize }}</p>
+                <h3>Total: ₱{{ order.total|number_format(2) }}</h3>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="button button-secondary" onclick="closeOrderModal('order-modal-{{ order.id }}')">Close</button>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+<script>
+function openOrderModal(id) {
+    const modal = document.getElementById(id);
+
+    if (modal) {
+        modal.classList.add('is-open');
+        document.body.classList.add('modal-open');
+    }
+}
+
+function closeOrderModal(id) {
+    const modal = document.getElementById(id);
+
+    if (modal) {
+        modal.classList.remove('is-open');
+
+        if (!document.querySelector('.modal-overlay.is-open')) {
+            document.body.classList.remove('modal-open');
+        }
+    }
+}
+
+document.querySelectorAll('.modal-overlay').forEach((modal) => {
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeOrderModal(modal.id);
+        }
+    });
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.is-open').forEach((modal) => {
+            closeOrderModal(modal.id);
+        });
+    }
+});
+</script>
+{% endblock %}

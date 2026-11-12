@@ -36,8 +36,10 @@ security:
 
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        # Admin and Staff route restrictions will be added
-        # when we create their respective controllers.
+        - { path: ^/user/management, roles: ROLE_ADMIN }
+        - { path: ^/product, roles: ROLE_STAFF }
+        - { path: ^/profile, roles: ROLE_STAFF }
+        - { path: ^/dashboard, roles: ROLE_USER }
 
 when@test:
     security:

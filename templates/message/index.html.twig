@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Messages | EMBER Admin{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ asset('images/logo-cream%20white.png') }}" alt="EMBER" class="sidebar-logo">
+            <span>ADMINISTRATION</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
+            <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
+            <a href="{{ path('app_product') }}" class="nav-link">Products</a>
+            <a href="{{ path('app_order') }}" class="nav-link">Orders</a>
+            <a href="{{ path('app_subscriber') }}" class="nav-link">Subscribers</a>
+            <a href="{{ path('app_message') }}" class="nav-link active">Messages</a>
+            <a href="{{ path('app_profile') }}" class="nav-link">My Profile</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
+        </div>
+    </aside>
+
+    <main class="admin-main messages-page">
+        <div class="management-heading">
+            <div>
+                <p class="eyebrow">Inbox</p>
+                <h1>Contact Messages</h1>
+                <p>Messages submitted through the EMBER contact form.</p>
+            </div>
+            <span class="management-count">{{ messages|length }} Messages</span>
+        </div>
+
+        <div class="message-list">
+            {% for message in messages %}
+                <article class="admin-message-card">
+                    <div class="admin-message-header">
+                        <div>
+                            <strong>{{ message.name }}</strong>
+                            <p>{{ message.email }}</p>
+                        </div>
+
+                        <div class="message-meta">
+                            <span>{{ message.createdAt|date('M j, Y g:i A') }}</span>
+                            <span class="status-badge {{ message.isRead ? 'status-read' : 'status-unread' }}">
+                                {{ message.isRead ? 'Read' : 'Unread' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <h3 class="admin-message-subject">
+                        {{ message.subject }}
+                    </h3>
+
+                    <p class="admin-message-body">
+                        {{ message.message }}
+                    </p>
+                </article>
+            {% else %}
+                <div class="empty-state">
+                    No contact messages yet.
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}
