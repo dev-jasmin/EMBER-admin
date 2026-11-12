@@ -4,24 +4,10 @@
 
 {% block body %}
 <div class="admin-layout">
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand">
-            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
-            <span>ADMINISTRATION</span>
-        </div>
 
-        <nav class="sidebar-nav">
-            <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
-            <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
-            <a href="{{ path('app_product') }}" class="nav-link">Product Management</a>
-            <a href="{{ path('app_order') }}" class="nav-link active">Orders</a>
-            <a href="{{ path('app_profile') }}" class="nav-link">My Profile</a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
-        </div>
-    </aside>
+    {{ include('partials/_admin_sidebar.html.twig', {
+        activePage: 'orders'
+    }) }}
 
     <main class="admin-main">
         <header class="dashboard-header">
@@ -79,7 +65,7 @@
                                 </td>
                                 <td>{{ order.createdAt|date('M d, Y') }}</td>
                                 <td>{{ order.paymentMethod|upper }}</td>
-                                <td>₱{{ order.total|number_format(2) }}</td>
+                                <td>Γé▒{{ order.total|number_format(2) }}</td>
                                 <td>
                                     <form method="post" action="{{ path('app_order_status', {id: order.id}) }}">
                                         <input type="hidden" name="_token" value="{{ csrf_token('order-status-' ~ order.id) }}">
@@ -146,7 +132,7 @@
                 {% for item in order.orderItems %}
                     <div class="management-heading">
                         <span>Product #{{ item.productId }}</span>
-                        <span>{{ item.quantity }} × ₱{{ item.price|number_format(2) }}</span>
+                        <span>{{ item.quantity }} ├ù Γé▒{{ item.price|number_format(2) }}</span>
                     </div>
                 {% else %}
                     <p class="dashboard-subtitle">No order items found.</p>
@@ -155,7 +141,7 @@
                 <div class="divider"></div>
                 <p><strong>Payment Method:</strong> {{ order.paymentMethod|upper }}</p>
                 <p><strong>Order Status:</strong> {{ order.status|capitalize }}</p>
-                <h3>Total: ₱{{ order.total|number_format(2) }}</h3>
+                <h3>Total: Γé▒{{ order.total|number_format(2) }}</h3>
             </div>
 
             <div class="modal-actions">

@@ -4,24 +4,10 @@
 
 {% block body %}
 <div class="admin-layout">
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand">
-            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
-            <span>ADMINISTRATION</span>
-        </div>
 
-        <nav class="sidebar-nav">
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
-                <a href="{{ path('app_user_management') }}" class="nav-link">User Management</a>
-            {% endif %}
-            <a href="{{ path('app_product') }}" class="nav-link active">Products</a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
-        </div>
-    </aside>
+    {{ include('partials/_admin_sidebar.html.twig', {
+        activePage: 'products'
+    }) }}
 
     <main class="admin-main">
         <header class="dashboard-header">
@@ -81,10 +67,10 @@
                                         <span>{{ product.name }}</span>
                                     </div>
                                 </td>
-                                <td>₱{{ product.price|number_format(2) }}</td>
-                                <td>{{ product.category|default('—')|capitalize }}</td>
+                                <td>Γé▒{{ product.price|number_format(2) }}</td>
+                                <td>{{ product.category|default('ΓÇö')|capitalize }}</td>
                                 <td>{{ product.isActive ? 'Active' : 'Inactive' }}</td>
-                                <td>{{ product.createdBy ? product.createdBy.username : '—' }}</td>
+                                <td>{{ product.createdBy ? product.createdBy.username : 'ΓÇö' }}</td>
                                 <td>{{ product.createdAt|date('M d, Y') }}</td>
                                 <td class="action-cell">
                                     {% if is_granted('ROLE_ADMIN') or (product.createdBy and product.createdBy.id == app.user.id) %}

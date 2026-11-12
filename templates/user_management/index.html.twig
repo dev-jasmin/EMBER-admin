@@ -4,22 +4,10 @@
 
 {% block body %}
 <div class="admin-layout">
-    <aside class="admin-sidebar">
-        <div class="sidebar-brand">
-            <img src="{{ asset('images/logo-cream white.png') }}" alt="EMBER" class="sidebar-logo">
-            <span>ADMINISTRATION</span>
-        </div>
 
-        <nav class="sidebar-nav">
-            <a href="{{ path('app_dashboard') }}" class="nav-link">Dashboard</a>
-            <a href="{{ path('app_user_management') }}" class="nav-link active">User Management</a>
-            <a href="{{ path('app_product') }}" class="nav-link">Products</a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <a href="{{ path('app_logout') }}" class="nav-link logout-link">Sign Out</a>
-        </div>
-    </aside>
+    {{ include('partials/_admin_sidebar.html.twig', {
+        activePage: 'users'
+    }) }}
 
     <main class="admin-main">
         <header class="dashboard-header">
@@ -215,7 +203,7 @@
 </div>
 {% endif %}
 
-{# Delete Confirmation Modal #}
+{# DELETE CONFIRMATION MODAL #}
 <div class="modal-overlay" id="deleteModal">
     <div class="admin-modal">
         <div class="modal-header">
@@ -353,5 +341,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
 {% endblock %}

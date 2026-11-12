@@ -50,6 +50,7 @@ final class ProductController extends AbstractController
             'products' => $products,
             'addForm' => $addForm,
             'editForms' => $editForms,
+            'activePage' => 'products',
         ]);
     }
 

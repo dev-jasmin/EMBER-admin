@@ -76,6 +76,7 @@ final class UserManagementController extends AbstractController
             'showModal' => $showModal,
             'editForm' => null,
             'editingUser' => null,
+            'activePage' => 'users',
         ]);
     }
 
@@ -88,6 +89,7 @@ final class UserManagementController extends AbstractController
         UserPasswordHasherInterface $passwordHasher
     ): Response {
         $editForm = $this->createForm(EditUserType::class, $user);
+
         $editForm->get('role')->setData(
             in_array('ROLE_ADMIN', $user->getRoles(), true)
                 ? 'ROLE_ADMIN'
@@ -115,9 +117,11 @@ final class UserManagementController extends AbstractController
                 );
             } else {
                 $selectedRole = $editForm->get('role')->getData();
+                $currentUser = $this->getUser();
 
                 if (
-                    $user->getId() === $this->getUser()->getId() &&
+                    $currentUser instanceof User &&
+                    $user->getId() === $currentUser->getId() &&
                     $selectedRole !== 'ROLE_ADMIN'
                 ) {
                     $this->addFlash(
@@ -152,6 +156,7 @@ final class UserManagementController extends AbstractController
             'showModal' => false,
             'editForm' => $editForm,
             'editingUser' => $user,
+            'activePage' => 'users',
         ]);
     }
 
@@ -161,7 +166,12 @@ final class UserManagementController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        if ($user->getId() === $this->getUser()->getId()) {
+        $currentUser = $this->getUser();
+
+        if (
+            $currentUser instanceof User &&
+            $user->getId() === $currentUser->getId()
+        ) {
             $this->addFlash('error', 'You cannot delete your own account.');
 
             return $this->redirectToRoute('app_user_management');

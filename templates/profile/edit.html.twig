@@ -3,30 +3,37 @@
 {% block title %}Edit Profile | EMBER{% endblock %}
 
 {% block body %}
-<div class="admin-content admin-profile">
-    <header class="profile-heading">
-        <p class="profile-eyebrow">Your account</p>
-        <h1>Edit profile</h1>
-        <p>Update your username and email address.</p>
-    </header>
+<div class="admin-layout">
 
-    <section class="profile-form-card" aria-labelledby="profile-edit-heading">
-        <div class="profile-form-heading">
-            <p class="profile-eyebrow">Personal information</p>
-            <h2 id="profile-edit-heading">Account details</h2>
-            <p>Keep your account details accurate and up to date.</p>
-        </div>
+    {{ include('partials/_admin_sidebar.html.twig', {
+        activePage: 'profile'
+    }) }}
 
-        {{ form_start(form, {'attr': {'class': 'profile-edit-form'}}) }}
-            {{ form_errors(form) }}
-            {{ form_row(form.username) }}
-            {{ form_row(form.email) }}
+    <div class="admin-content admin-profile">
+        <header class="profile-heading">
+            <p class="profile-eyebrow">Your account</p>
+            <h1>Edit profile</h1>
+            <p>Update your username and email address.</p>
+        </header>
 
-            <div class="profile-actions">
-                <button type="submit" class="profile-button profile-button-primary">Save Changes</button>
-                <a href="{{ path('app_profile') }}" class="profile-button profile-button-outline">Cancel</a>
+        <section class="profile-form-card" aria-labelledby="profile-edit-heading">
+            <div class="profile-form-heading">
+                <p class="profile-eyebrow">Personal information</p>
+                <h2 id="profile-edit-heading">Account details</h2>
+                <p>Keep your account details accurate and up to date.</p>
             </div>
-        {{ form_end(form) }}
-    </section>
+
+            {{ form_start(form, {'attr': {'class': 'profile-edit-form'}}) }}
+                {{ form_errors(form) }}
+                {{ form_row(form.username) }}
+                {{ form_row(form.email) }}
+
+                <div class="profile-actions">
+                    <button type="submit" class="profile-button profile-button-primary">Save Changes</button>
+                    <a href="{{ path('app_profile') }}" class="profile-button profile-button-outline">Cancel</a>
+                </div>
+            {{ form_end(form) }}
+        </section>
+    </div>
 </div>
 {% endblock %}

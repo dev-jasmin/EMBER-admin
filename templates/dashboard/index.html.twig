@@ -6,43 +6,10 @@
 
 <div class="admin-layout">
 
-    {# Sidebar #}
-    <aside class="admin-sidebar">
+    {{ include('partials/_admin_sidebar.html.twig', {
+        activePage: 'dashboard'
+    }) }}
 
-        <div class="sidebar-brand">
-            <img
-                src="{{ asset('images/logo-cream%20white.png') }}"
-                alt="EMBER"
-                class="sidebar-logo"
-            >
-            <span>ADMINISTRATION</span>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a href="{{ path('app_dashboard') }}" class="nav-link active">
-                Dashboard
-            </a>
-
-            {% if isAdmin %}
-                <a href="{{ path('app_user_management') }}" class="nav-link">
-                    User Management
-                </a>
-            {% endif %}
-
-            <a href="{{ path('app_product') }}" class="nav-link">
-                Products
-            </a>
-        </nav>
-
-        <div class="sidebar-bottom">
-            <a href="{{ path('app_logout') }}" class="nav-link logout-link">
-                Sign Out
-            </a>
-        </div>
-
-    </aside>
-
-    {# Main Content #}
     <main class="admin-main">
 
         <header class="dashboard-header">
@@ -84,6 +51,38 @@
                     <h3>{{ totalProducts }}</h3>
                     <p>Products in the system</p>
                 </article>
+
+                <article class="dashboard-card">
+                    <span class="card-label">Active Products</span>
+                    <h3>{{ activeProducts }}</h3>
+                    <p>Currently available products</p>
+                </article>
+
+                {% if isAdmin %}
+                    <article class="dashboard-card">
+                        <span class="card-label">Total Orders</span>
+                        <h3>{{ totalOrders }}</h3>
+                        <p>Customer orders</p>
+                    </article>
+
+                    <article class="dashboard-card">
+                        <span class="card-label">Total Revenue</span>
+                        <h3>₱{{ totalRevenue|number_format(2, '.', ',') }}</h3>
+                        <p>Excluding cancelled orders</p>
+                    </article>
+
+                    <article class="dashboard-card">
+                        <span class="card-label">Subscribers</span>
+                        <h3>{{ totalSubscribers }}</h3>
+                        <p>Newsletter subscribers</p>
+                    </article>
+
+                    <article class="dashboard-card">
+                        <span class="card-label">Contact Messages</span>
+                        <h3>{{ totalMessages }}</h3>
+                        <p>Customer inquiries</p>
+                    </article>
+                {% endif %}
 
             </div>
         </section>

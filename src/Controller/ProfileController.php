@@ -22,6 +22,7 @@ final class ProfileController extends AbstractController
     {
         return $this->render('profile/index.html.twig', [
             'user' => $this->getUser(),
+            'activePage' => 'profile',
         ]);
     }
 
@@ -49,6 +50,7 @@ final class ProfileController extends AbstractController
 
         return $this->render('profile/edit.html.twig', [
             'form' => $form,
+            'activePage' => 'profile',
         ]);
     }
 
@@ -75,6 +77,7 @@ final class ProfileController extends AbstractController
 
                 return $this->render('profile/change_password.html.twig', [
                     'form' => $form,
+                    'activePage' => 'profile',
                 ]);
             }
 
@@ -93,6 +96,7 @@ final class ProfileController extends AbstractController
 
         return $this->render('profile/change_password.html.twig', [
             'form' => $form,
+            'activePage' => 'profile',
         ]);
     }
 }

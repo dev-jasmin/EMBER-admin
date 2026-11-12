@@ -23,6 +23,7 @@ final class SubscriberController extends AbstractController
 
         return $this->render('subscriber/index.html.twig', [
             'subscribers' => $subscribers,
+            'activePage' => 'subscribers',
         ]);
     }
 }

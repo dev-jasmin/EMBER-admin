@@ -22,6 +22,7 @@ final class OrderController extends AbstractController
 
         return $this->render('order/index.html.twig', [
             'orders' => $orders,
+            'activePage' => 'orders',
         ]);
     }
 
