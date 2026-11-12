@@ -191,4 +191,48 @@ final class UserManagementController extends AbstractController
 
         return $this->redirectToRoute('app_user_management');
     }
+
+    #[Route('/{id}/toggle-status', name: 'app_user_management_toggle_status', methods: ['POST'])]
+    public function toggleStatus(
+        User $user,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $currentUser = $this->getUser();
+
+        if (
+            $currentUser instanceof User &&
+            $user->getId() === $currentUser->getId()
+        ) {
+            $this->addFlash('error', 'You cannot deactivate your own account.');
+
+            return $this->redirectToRoute('app_user_management');
+        }
+
+        if (!in_array('ROLE_STAFF', $user->getRoles(), true)) {
+            $this->addFlash('error', 'Only Staff accounts can be deactivated.');
+
+            return $this->redirectToRoute('app_user_management');
+        }
+
+        if (!$this->isCsrfTokenValid(
+            'toggle-user-status-' . $user->getId(),
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
+        $user->setIsActive(!$user->isActive());
+
+        $entityManager->flush();
+
+        $this->addFlash(
+            'success',
+            $user->isActive()
+                ? 'Staff account activated successfully.'
+                : 'Staff account deactivated successfully.'
+        );
+
+        return $this->redirectToRoute('app_user_management');
+    }
 }

@@ -24,9 +24,11 @@
         </header>
 
         {% for message in app.flashes('success') %}
-            <div class="flash flash-success" role="status">
-                {{ message }}
-            </div>
+            <div class="flash flash-success" role="status">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error" role="alert">{{ message }}</div>
         {% endfor %}
 
         <section class="dashboard-section">
@@ -36,11 +38,7 @@
                     <p class="dashboard-subtitle">View and manage registered accounts.</p>
                 </div>
 
-                <button
-                    type="button"
-                    id="open-add-user-modal"
-                    class="button button-champagne"
-                >
+                <button type="button" id="open-add-user-modal" class="button button-champagne">
                     + Add User
                 </button>
             </div>
@@ -52,6 +50,7 @@
                             <th>Username</th>
                             <th>Email Address</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th>Date Created</th>
                             <th>Actions</th>
                         </tr>
@@ -75,14 +74,33 @@
                                         <span class="role-label">Customer</span>
                                     {% endif %}
                                 </td>
+                                <td>
+                                    {% if user.isActive %}
+                                        <span class="user-status user-status--active">Active</span>
+                                    {% else %}
+                                        <span class="user-status user-status--inactive">Inactive</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ user.createdAt|date('M d, Y') }}</td>
+
                                 <td class="action-cell">
                                     <a
                                         href="{{ path('app_user_management_edit', {id: user.id}) }}"
-                                        class="action-placeholder"
-                                    >
+                                        class="action-placeholder edit-action">
                                         Edit
                                     </a>
+
+                                    {% if 'ROLE_STAFF' in user.roles and user.id != app.user.id %}
+                                        <button
+                                            type="button"
+                                            class="action-placeholder status-action"
+                                            data-status-url="{{ path('app_user_management_toggle_status', {id: user.id}) }}"
+                                            data-user-name="{{ user.username }}"
+                                            data-user-status="{{ user.isActive ? 'active' : 'inactive' }}"
+                                            data-status-token="{{ csrf_token('toggle-user-status-' ~ user.id) }}">
+                                            {{ user.isActive ? 'Deactivate' : 'Activate' }}
+                                        </button>
+                                    {% endif %}
 
                                     {% if user.id != app.user.id %}
                                         <button
@@ -90,8 +108,7 @@
                                             class="action-placeholder delete-action"
                                             data-delete-url="{{ path('app_user_management_delete', {id: user.id}) }}"
                                             data-user-name="{{ user.username }}"
-                                            data-delete-token="{{ csrf_token('delete-user-' ~ user.id) }}"
-                                        >
+                                            data-delete-token="{{ csrf_token('delete-user-' ~ user.id) }}">
                                             Delete
                                         </button>
                                     {% endif %}
@@ -99,9 +116,7 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="5" class="empty-table">
-                                    No accounts found.
-                                </td>
+                                <td colspan="6" class="empty-table">No accounts found.</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -125,15 +140,10 @@
             </button>
         </div>
 
-        {% for message in app.flashes('error') %}
-            <div class="flash flash-error" role="alert">{{ message }}</div>
-        {% endfor %}
-
         {{ form_start(form, {
             action: path('app_user_management'),
             attr: { class: 'admin-form' }
         }) }}
-
             {{ form_errors(form) }}
             {{ form_row(form.username) }}
             {{ form_row(form.email) }}
@@ -144,12 +154,10 @@
                 <button type="button" id="cancel-add-user-modal" class="button button-secondary">
                     Cancel
                 </button>
-
                 <button type="submit" class="button button-champagne">
                     Create Account
                 </button>
             </div>
-
         {{ form_end(form) }}
     </section>
 </div>
@@ -164,24 +172,15 @@
                 <h1 id="edit-user-title">Edit User</h1>
             </div>
 
-            <a
-                href="{{ path('app_user_management') }}"
-                class="modal-close"
-                aria-label="Close modal"
-            >
+            <a href="{{ path('app_user_management') }}" class="modal-close" aria-label="Close modal">
                 &times;
             </a>
         </div>
-
-        {% for message in app.flashes('error') %}
-            <div class="flash flash-error" role="alert">{{ message }}</div>
-        {% endfor %}
 
         {{ form_start(editForm, {
             action: path('app_user_management_edit', {id: editingUser.id}),
             attr: { class: 'admin-form' }
         }) }}
-
             {{ form_errors(editForm) }}
             {{ form_row(editForm.username) }}
             {{ form_row(editForm.email) }}
@@ -192,12 +191,10 @@
                 <a href="{{ path('app_user_management') }}" class="button button-secondary">
                     Cancel
                 </a>
-
                 <button type="submit" class="button button-champagne">
                     Save Changes
                 </button>
             </div>
-
         {{ form_end(editForm) }}
     </section>
 </div>
@@ -205,40 +202,51 @@
 
 {# DELETE CONFIRMATION MODAL #}
 <div class="modal-overlay" id="deleteModal">
-    <div class="admin-modal">
+    <div class="admin-modal" role="dialog" aria-modal="true">
         <div class="modal-header">
             <h1>Delete Account</h1>
-            <button type="button" class="modal-close" id="closeDeleteModal">
-                &times;
-            </button>
+            <button type="button" class="modal-close" id="closeDeleteModal">&times;</button>
         </div>
 
         <p class="modal-description">
-            Are you sure you want to delete
-            <strong id="deleteUserName"></strong>?
+            Are you sure you want to delete <strong id="deleteUserName"></strong>?
         </p>
-
-        <p class="modal-warning">
-            This action cannot be undone.
-        </p>
+        <p class="modal-warning">This action cannot be undone.</p>
 
         <form method="post" id="deleteUserForm">
             <input type="hidden" name="_token" id="deleteUserToken">
 
             <div class="modal-actions">
-                <button
-                    type="button"
-                    class="button button-secondary"
-                    id="cancelDelete"
-                >
+                <button type="button" class="button button-secondary" id="cancelDelete">
                     Cancel
                 </button>
-
-                <button
-                    type="submit"
-                    class="button button-danger"
-                >
+                <button type="submit" class="button button-danger">
                     Delete Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ACTIVATE / DEACTIVATE CONFIRMATION MODAL #}
+<div class="modal-overlay" id="statusModal">
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="statusModalTitle">
+        <div class="modal-header">
+            <h1 id="statusModalTitle">Change Account Status</h1>
+            <button type="button" class="modal-close" id="closeStatusModal">&times;</button>
+        </div>
+
+        <p class="modal-description" id="statusModalMessage"></p>
+
+        <form method="post" id="statusUserForm">
+            <input type="hidden" name="_token" id="statusUserToken">
+
+            <div class="modal-actions">
+                <button type="button" class="button button-secondary" id="cancelStatus">
+                    Cancel
+                </button>
+                <button type="submit" class="button button-champagne" id="confirmStatus">
+                    Confirm
                 </button>
             </div>
         </form>
@@ -250,6 +258,7 @@
 {% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
     // ADD USER MODAL
     const modal = document.getElementById('add-user-modal');
     const openButton = document.getElementById('open-add-user-modal');
@@ -275,14 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelButton.addEventListener('click', closeModal);
 
     modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            closeModal();
-        }
+        if (event.target === modal) closeModal();
     });
 
-    if (showModal) {
-        openModal();
-    }
+    if (showModal) openModal();
 
     // EDIT USER MODAL
     const editModal = document.getElementById('edit-user-modal');
@@ -300,15 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeDeleteButton = document.getElementById('closeDeleteModal');
     const cancelDeleteButton = document.getElementById('cancelDelete');
 
-    const openDeleteModal = (button) => {
-        deleteForm.action = button.dataset.deleteUrl;
-        deleteUserName.textContent = button.dataset.userName;
-        deleteUserToken.value = button.dataset.deleteToken;
-
-        deleteModal.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-    };
-
     const closeDeleteModal = () => {
         deleteModal.classList.remove('is-open');
         document.body.style.overflow = '';
@@ -316,7 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.delete-action').forEach((button) => {
         button.addEventListener('click', () => {
-            openDeleteModal(button);
+            deleteForm.action = button.dataset.deleteUrl;
+            deleteUserName.textContent = button.dataset.userName;
+            deleteUserToken.value = button.dataset.deleteToken;
+
+            deleteModal.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
         });
     });
 
@@ -324,19 +325,59 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelDeleteButton.addEventListener('click', closeDeleteModal);
 
     deleteModal.addEventListener('click', (event) => {
-        if (event.target === deleteModal) {
-            closeDeleteModal();
-        }
+        if (event.target === deleteModal) closeDeleteModal();
     });
 
-    // CLOSE MODALS WITH ESCAPE
+    // ACTIVATE / DEACTIVATE MODAL
+    const statusModal = document.getElementById('statusModal');
+    const statusForm = document.getElementById('statusUserForm');
+    const statusToken = document.getElementById('statusUserToken');
+    const statusMessage = document.getElementById('statusModalMessage');
+    const statusTitle = document.getElementById('statusModalTitle');
+    const confirmStatus = document.getElementById('confirmStatus');
+
+    const closeStatusButton = document.getElementById('closeStatusModal');
+    const cancelStatusButton = document.getElementById('cancelStatus');
+
+    const closeStatusModal = () => {
+        statusModal.classList.remove('is-open');
+        document.body.style.overflow = '';
+    };
+
+    document.querySelectorAll('.status-action').forEach((button) => {
+        button.addEventListener('click', () => {
+            const isActive = button.dataset.userStatus === 'active';
+            const action = isActive ? 'deactivate' : 'activate';
+
+            statusForm.action = button.dataset.statusUrl;
+            statusToken.value = button.dataset.statusToken;
+
+            statusTitle.textContent = isActive ? 'Deactivate Staff Account?' : 'Activate Staff Account?';
+
+            statusMessage.textContent = isActive
+                ? `Are you sure you want to deactivate ${button.dataset.userName}? They will no longer be able to log in.`
+                : `Are you sure you want to reactivate ${button.dataset.userName}? They will be able to log in again.`;
+
+            confirmStatus.textContent = isActive ? 'Deactivate Account' : 'Activate Account';
+
+            statusModal.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    closeStatusButton.addEventListener('click', closeStatusModal);
+    cancelStatusButton.addEventListener('click', closeStatusModal);
+
+    statusModal.addEventListener('click', (event) => {
+        if (event.target === statusModal) closeStatusModal();
+    });
+
+    // ESCAPE KEY
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
-            if (deleteModal.classList.contains('is-open')) {
-                closeDeleteModal();
-            } else if (modal.classList.contains('is-open')) {
-                closeModal();
-            }
+            closeModal();
+            closeDeleteModal();
+            closeStatusModal();
         }
     });
 });

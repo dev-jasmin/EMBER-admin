@@ -27,7 +27,9 @@
             <div class="management-heading">
                 <div>
                     <h2>Products</h2>
-                    <p class="dashboard-subtitle">{{ products|length }} products in the catalog</p>
+                    <p class="dashboard-subtitle">
+                        {{ products|length }} products found
+                    </p>
                 </div>
 
                 <button type="button" class="button button-champagne" onclick="openProductModal('add-product-modal')">
@@ -43,6 +45,37 @@
                 <div class="flash-message flash-error">{{ message }}</div>
             {% endfor %}
 
+            {# SEARCH AND FILTER #}
+            <form method="get" action="{{ path('app_product') }}" class="product-filter-form">
+                <div class="product-search">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="Search product name..."
+                        aria-label="Search products">
+                </div>
+
+                <div class="product-category-filter">
+                    <select name="category" aria-label="Filter by category">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" {% if selectedCategory == category %}selected{% endif %}>
+                                {{ category|capitalize }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="button button-champagne">
+                    Search / Filter
+                </button>
+
+                <a href="{{ path('app_product') }}" class="button button-secondary">
+                    Clear
+                </a>
+            </form>
+
             <div class="table-container">
                 <table class="admin-table">
                     <thead>
@@ -56,6 +89,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {% for product in products %}
                             <tr>
@@ -67,11 +101,13 @@
                                         <span>{{ product.name }}</span>
                                     </div>
                                 </td>
-                                <td>Γé▒{{ product.price|number_format(2) }}</td>
-                                <td>{{ product.category|default('ΓÇö')|capitalize }}</td>
+
+                                <td>₱{{ product.price|number_format(2, '.', ',') }}</td>
+                                <td>{{ product.category|default('N/A')|capitalize }}</td>
                                 <td>{{ product.isActive ? 'Active' : 'Inactive' }}</td>
-                                <td>{{ product.createdBy ? product.createdBy.username : 'ΓÇö' }}</td>
+                                <td>{{ product.createdBy ? product.createdBy.username : 'N/A' }}</td>
                                 <td>{{ product.createdAt|date('M d, Y') }}</td>
+
                                 <td class="action-cell">
                                     {% if is_granted('ROLE_ADMIN') or (product.createdBy and product.createdBy.id == app.user.id) %}
                                         <button
@@ -95,7 +131,9 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="7" class="empty-table">No products have been added yet.</td>
+                                <td colspan="7" class="empty-table">
+                                    No products match your search or filter.
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -121,15 +159,9 @@
             {{ form_errors(addForm) }}
 
             <div class="product-modal-grid">
-                <div>
-                    {{ form_row(addForm.name) }}
-                </div>
-                <div>
-                    {{ form_row(addForm.price) }}
-                </div>
-                <div>
-                    {{ form_row(addForm.category) }}
-                </div>
+                <div>{{ form_row(addForm.name) }}</div>
+                <div>{{ form_row(addForm.price) }}</div>
+                <div>{{ form_row(addForm.category) }}</div>
                 <div>
                     {{ form_row(addForm.imageFile) }}
                     <small class="product-upload-help">Choose a JPG, PNG, or WEBP image (up to 5 MB).</small>
@@ -152,7 +184,7 @@
     </div>
 </div>
 
-{# EDIT PRODUCT MODALS #}
+{# EDIT AND DELETE MODALS #}
 {% for product in products %}
     <div class="modal-overlay" id="edit-product-modal-{{ product.id }}">
         <div class="admin-modal product-modal" role="dialog" aria-modal="true" aria-labelledby="edit-product-title-{{ product.id }}">
@@ -169,15 +201,9 @@
                 {{ form_errors(editForms[product.id]) }}
 
                 <div class="product-modal-grid">
-                    <div>
-                        {{ form_row(editForms[product.id].name) }}
-                    </div>
-                    <div>
-                        {{ form_row(editForms[product.id].price) }}
-                    </div>
-                    <div>
-                        {{ form_row(editForms[product.id].category) }}
-                    </div>
+                    <div>{{ form_row(editForms[product.id].name) }}</div>
+                    <div>{{ form_row(editForms[product.id].price) }}</div>
+                    <div>{{ form_row(editForms[product.id].category) }}</div>
                     <div>
                         {{ form_row(editForms[product.id].imageFile) }}
                         <small class="product-upload-help">Leave empty to keep the current image.</small>
@@ -200,14 +226,16 @@
         </div>
     </div>
 
-    {# DELETE CONFIRMATION MODAL #}
     <div class="modal-overlay" id="delete-product-modal-{{ product.id }}">
         <div class="admin-modal delete-modal" role="dialog" aria-modal="true">
             <div class="modal-header">
                 <div>
                     <p class="eyebrow">CONFIRM ACTION</p>
                     <h2>Delete Product?</h2>
-                    <p class="modal-description">Are you sure you want to delete <strong>{{ product.name }}</strong>? This action cannot be undone.</p>
+                    <p class="modal-description">
+                        Are you sure you want to delete <strong>{{ product.name }}</strong>?
+                        This action cannot be undone.
+                    </p>
                 </div>
                 <button type="button" class="modal-close" onclick="closeProductModal('delete-product-modal-{{ product.id }}')">&times;</button>
             </div>

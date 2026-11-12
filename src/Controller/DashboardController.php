@@ -24,42 +24,43 @@ final class DashboardController extends AbstractController
         NewsletterSubscriberRepository $subscriberRepository,
         ContactMessageRepository $messageRepository
     ): Response {
-        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        $totalRevenue = 0;
-
-        if ($isAdmin) {
-            $totalRevenue = $orderRepository
-                ->createQueryBuilder('o')
-                ->select('COALESCE(SUM(o.total), 0)')
-                ->where('o.status != :cancelled')
-                ->setParameter('cancelled', 'cancelled')
-                ->getQuery()
-                ->getSingleScalarResult();
+        // Only Admin accounts can access the Admin Dashboard.
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException(
+                'Only administrators can access the dashboard.'
+            );
         }
 
+        $totalRevenue = $orderRepository
+            ->createQueryBuilder('o')
+            ->select('COALESCE(SUM(o.total), 0)')
+            ->where('o.status != :cancelled')
+            ->setParameter('cancelled', 'cancelled')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         return $this->render('dashboard/index.html.twig', [
-            'isAdmin' => $isAdmin,
+            'isAdmin' => true,
             'activePage' => 'dashboard',
 
-            'totalUsers' => $isAdmin ? $userRepository->count([]) : null,
-            'totalStaff' => $isAdmin ? $userRepository->countByRole('ROLE_STAFF') : null,
+            // User statistics
+            'totalUsers' => $userRepository->count([]),
+            'totalStaff' => $userRepository->countByRole('ROLE_STAFF'),
 
+            // Product statistics
             'totalProducts' => $productRepository->count([]),
             'activeProducts' => $productRepository->count([
                 'isActive' => true,
             ]),
 
-            'totalOrders' => $isAdmin ? $orderRepository->count([]) : null,
+            // Order statistics
+            'totalOrders' => $orderRepository->count([]),
             'totalRevenue' => $totalRevenue,
 
-            'totalSubscribers' => $isAdmin
-                ? $subscriberRepository->count([])
-                : null,
-
-            'totalMessages' => $isAdmin
-                ? $messageRepository->count([])
-                : null,
+            // Other records
+            'totalSubscribers' => $subscriberRepository->count([]),
+            'totalMessages' => $messageRepository->count([]),
         ]);
     }
 }

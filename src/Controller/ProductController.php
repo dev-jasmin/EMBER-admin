@@ -19,10 +19,44 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[IsGranted('ROLE_STAFF')]
 final class ProductController extends AbstractController
 {
-    #[Route('', name: 'app_product', methods: ['GET'])] 
-    public function index(ProductRepository $productRepository): Response
-    {
-        $products = $productRepository->findBy([], ['createdAt' => 'DESC']);
+    #[Route('', name: 'app_product', methods: ['GET'])]
+    public function index(
+        Request $request,
+        ProductRepository $productRepository
+    ): Response {
+        $search = trim((string) $request->query->get('search', ''));
+        $category = trim((string) $request->query->get('category', ''));
+
+        $queryBuilder = $productRepository->createQueryBuilder('p');
+
+        if ($search !== '') {
+            $queryBuilder
+                ->andWhere('p.name LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($category !== '') {
+            $queryBuilder
+                ->andWhere('p.category = :category')
+                ->setParameter('category', $category);
+        }
+
+        $products = $queryBuilder
+            ->orderBy('p.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        // Get available categories for the filter.
+        $categoryRows = $productRepository
+            ->createQueryBuilder('p')
+            ->select('DISTINCT p.category')
+            ->where('p.category IS NOT NULL')
+            ->andWhere("p.category != ''")
+            ->orderBy('p.category', 'ASC')
+            ->getQuery()
+            ->getScalarResult();
+
+        $categories = array_column($categoryRows, 'category');
 
         $addForm = $this->createForm(
             ProductType::class,
@@ -50,10 +84,12 @@ final class ProductController extends AbstractController
             'products' => $products,
             'addForm' => $addForm,
             'editForms' => $editForms,
+            'categories' => $categories,
+            'search' => $search,
+            'selectedCategory' => $category,
             'activePage' => 'products',
         ]);
     }
-
 
     #[Route('/new', name: 'app_product_new', methods: ['GET', 'POST'])]
     public function new(

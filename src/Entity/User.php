@@ -32,6 +32,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ['default' => false])]
     private bool $isAdmin = false;
 
+    #[ORM\Column(options: ['default' => true])]
+    private bool $isActive = true;
+
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
@@ -160,6 +163,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 array_diff($this->roles, ['ROLE_ADMIN'])
             );
         }
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }
